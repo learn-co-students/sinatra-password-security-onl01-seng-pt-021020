@@ -18,15 +18,44 @@ class ApplicationController < Sinatra::Base
 
 	post "/signup" do
 		#your code here!
+		 user = User.new(:username => params[:username], :password => params[:password])
+		 if user.save
+      redirect "/login"
+     else
+      redirect "/failure"
+     end
 	end
 
 	get "/login" do
 		erb :login
 	end
+	
+get "/success" do 
+  erb :success
+end
+
 
 	post "/login" do
-		#your code here!
-	end
+  user = User.find_by(:username => params[:username])
+ 
+  if user && user.authenticate(params[:password]) 
+    session[:id] = user.id
+    redirect "/success"
+  else
+    redirect "/failure"
+  end
+end
+
+
+# post "/login" do
+#     if !empty_fields? && (@user = User.find_by(username: params[:username]))
+#       session[:user_id] = @user.id
+#       redirect '/success'
+#     else
+#       redirect '/failure'
+#     end
+#   end
+
 
 	get "/success" do
 		if logged_in?
@@ -53,6 +82,11 @@ class ApplicationController < Sinatra::Base
 		def current_user
 			User.find(session[user_id])
 		end
+		
+		# def empty_fields?
+  #     params[:username].empty? || params[:password].empty?
+  #   end
+
 	end
 
 end
